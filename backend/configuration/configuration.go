@@ -1,14 +1,18 @@
 package configuration
 
 import (
-	"log"
+	"os"
 
-	"github.com/joho/godotenv"
+	"github.com/Ashu23042000/coffee-supply-chain/backend/models"
 )
 
-func LoadEnvVariables() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error while loading .env file")
+func SetNetworkConfig() models.Configuration {
+	return models.Configuration{
+		MspID:        os.Getenv("mspId"),
+		CertPath:     os.Getenv("certPath"),
+		KeyPath:      os.Getenv("keyPath"),
+		TlsCertPath:  os.Getenv("tlsCertPath"),
+		PeerEndpoint: os.Getenv("peerEndpoint"),
+		GatewayPeer:  os.Getenv("gatewayPeer"),
 	}
 }

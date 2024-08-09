@@ -1,24 +1,24 @@
-package main
+package gatewaycli
 
 import (
 	"crypto/x509"
 	"fmt"
-	"log"
 	"os"
 	"path"
 	"time"
 
-	"github.com/Ashu23042000/coffee-supply-chain/backend/controller"
 	"github.com/hyperledger/fabric-gateway/pkg/client"
 	"github.com/hyperledger/fabric-gateway/pkg/identity"
-	"github.com/labstack/echo/v4"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
 
-// var (
-// 	client client.Client
-// )
+var now = time.Now()
+var assetId = fmt.Sprintf("asset%d", now.Unix()*1e3+int64(now.Nanosecond())/1e6)
+
+type GatewayClient struct {
+	Contract *client.Contract
+}
 
 const (
 	mspId        = "ProducerMSP"
@@ -29,17 +29,12 @@ const (
 	gatewayPeer  = "peer0.producer.example.com"
 )
 
-func main() {
+// func New(contract *client.Contract) GatewayClient {
+func New() GatewayClient {
 
 	// config := configuration.SetNetworkConfig()
 
-	// fmt.Println(os.Getenv("mspId"))
-
-	// fmt.Println(config)
-
-	// client := client.New()
-
-	// client.Query(models.Request{})
+	// fmt.Printf("%v\n", config)
 
 	clientConnection := newGrpcConnection()
 	defer clientConnection.Close()
@@ -77,18 +72,8 @@ func main() {
 	network := gw.GetNetwork(channelName)
 	contract := network.GetContract(chaincodeName)
 
-	assetController := controller.New(contract)
-
-	e := echo.New()
-	g := e.Group("/api")
-
-	g.GET("/assets", assetController.Get)
-	g.GET("/asset/:id", assetController.GetById)
-	g.POST("/create-asset", assetController.Create)
-
-	err = e.Start(":8080")
-	if err != nil {
-		log.Fatalf("error while starting server:%v", err)
+	return GatewayClient{
+		Contract: contract,
 	}
 }
 

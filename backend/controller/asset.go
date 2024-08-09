@@ -1,58 +1,95 @@
 package controller
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 
-	"github.com/Ashu23042000/coffee-supply-chain/backend/client"
+	"github.com/Ashu23042000/coffee-supply-chain/backend/gatewaycli"
 	"github.com/Ashu23042000/coffee-supply-chain/backend/models"
+	"github.com/hyperledger/fabric-gateway/pkg/client"
 	"github.com/labstack/echo/v4"
 )
 
+// import (
+// 	"net/http"
+
+// 	"github.com/Ashu23042000/coffee-supply-chain/backend/models"
+// 	"github.com/hyperledger/fabric-gateway/pkg/client"
+// 	"github.com/labstack/echo/v4"
+// )
+
 var (
-	gatewayClient = client.New()
+	gatewayClient gatewaycli.GatewayClient
 )
+
+type Controller struct {
+	contract *client.Contract
+}
+
+func New(client *client.Contract) *Controller {
+	return &Controller{
+		contract: client,
+	}
+}
 
 const (
-	chaincodeName = "beanChaincode"
-	contractName  = "assetContract"
+	chaincodeName = "basic"
+	contractName  = "SmartContract"
 )
 
-func Get(ctx echo.Context) error {
+func (c *Controller) Get(ctx echo.Context) error {
 	request := models.Request{
 		ChaincodeName: chaincodeName,
 		ContractName:  contractName,
-		MethodName:    "getAsset",
+		MethodName:    "GetAllAssets",
 	}
 
-	assets, err := gatewayClient.Query(request)
+	evaluateResult, err := c.contract.EvaluateTransaction(request.MethodName)
 	if err != nil {
-		return ctx.String(http.StatusInternalServerError, err.Error())
+		return ctx.JSON(http.StatusInternalServerError, "Failed to get assets")
+	}
+
+	// var assets []models.Asset
+	var assets interface{}
+
+	err = json.Unmarshal(evaluateResult, &assets)
+	if err != nil {
+		fmt.Println("err", err)
+		return ctx.JSON(http.StatusInternalServerError, "Failed to get assets")
 	}
 
 	return ctx.JSON(http.StatusOK, assets)
 }
 
-func GetById(ctx echo.Context) error {
+func (c *Controller) GetById(ctx echo.Context) error {
 	request := models.Request{
 		ChaincodeName: chaincodeName,
 		ContractName:  contractName,
 		MethodName:    "getAssetById",
 	}
-
-	asset, err := gatewayClient.Query(request)
+	evaluateResult, err := c.contract.EvaluateTransaction(request.MethodName)
 	if err != nil {
-		return ctx.String(http.StatusInternalServerError, err.Error())
+		return ctx.JSON(http.StatusInternalServerError, "Failed to get asset")
 	}
 
-	return ctx.JSON(http.StatusOK, asset)
+	// var assets []models.Asset
+	var assets interface{}
 
+	err = json.Unmarshal(evaluateResult, &assets)
+	if err != nil {
+		fmt.Println("err", err)
+		return ctx.JSON(http.StatusInternalServerError, "Failed to get asset")
+	}
+
+	return ctx.JSON(http.StatusOK, assets)
 }
 
-func Create(ctx echo.Context) error {
+func (c *Controller) Create(ctx echo.Context) error {
 	request := models.Request{
 		ChaincodeName: chaincodeName,
 		ContractName:  contractName,
-		MethodName:    "createAsset",
+		MethodName:    "InitLedger",
 	}
 	var args []string
 	err := ctx.Bind(args)
@@ -61,11 +98,9 @@ func Create(ctx echo.Context) error {
 	}
 
 	request.Args = args
-
-	err = gatewayClient.Commit(request)
+	_, err = c.contract.SubmitTransaction(request.MethodName, request.Args...)
 	if err != nil {
-		return ctx.String(http.StatusInternalServerError, err.Error())
+		panic(fmt.Errorf("failed to submit transaction: %w", err))
 	}
-
 	return ctx.JSON(http.StatusOK, "Asset created successfully")
 }
