@@ -7,10 +7,5 @@ type User struct {
 	Email     string `json:"email"`
 	ContactNo string `json:"contactNo"`
 	Address   string `json:"address"`
-}
-
-type Participant struct {
-	User   User   `json:"user"`
-	Role   string `json:"role"`
-	Status string `json:"status"`
+	Password  string `json:"password"`
 }

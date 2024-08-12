@@ -1,11 +1,13 @@
 package utils
 
 import (
+	"crypto/sha256"
 	"encoding/hex"
 	"math/rand"
 )
 
 const length = 8
+const SharedSecret = "your-shared-secret"
 
 const (
 	UserRoleADMIN      = "ADMIN"
@@ -26,4 +28,10 @@ func GenerateSecureRandomString() (string, error) {
 		return "", err
 	}
 	return hex.EncodeToString(bytes), nil
+}
+func GenerateDeterministicID(sharedSecret string) string {
+	// Hash the shared secret to get a consistent ID
+	hash := sha256.New()
+	hash.Write([]byte(sharedSecret))
+	return hex.EncodeToString(hash.Sum(nil))
 }

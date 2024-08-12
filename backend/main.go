@@ -4,6 +4,7 @@ import (
 	"crypto/x509"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"path"
 	"time"
@@ -12,6 +13,7 @@ import (
 	"github.com/hyperledger/fabric-gateway/pkg/client"
 	"github.com/hyperledger/fabric-gateway/pkg/identity"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -64,7 +66,7 @@ func main() {
 	defer gw.Close()
 
 	// Override default values for chaincode and channel name as they may differ in testing contexts.
-	chaincodeName := "basic"
+	chaincodeName := "test"
 	if ccname := os.Getenv("CHAINCODE_NAME"); ccname != "" {
 		chaincodeName = ccname
 	}
@@ -77,14 +79,31 @@ func main() {
 	network := gw.GetNetwork(channelName)
 	contract := network.GetContract(chaincodeName)
 
-	assetController := controller.New(contract)
+	controller := controller.New(contract)
 
 	e := echo.New()
 	g := e.Group("/api")
 
-	g.GET("/assets", assetController.Get)
-	g.GET("/asset/:id", assetController.GetById)
-	g.POST("/create-asset", assetController.Create)
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"http://localhost:3000"},
+		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete},
+	}))
+
+	g.GET("/assets", controller.Get)
+	g.GET("/asset/:id", controller.GetById)
+	g.POST("/create-asset", controller.Create)
+	g.POST("/producerupdate-asset", controller.ProducerUpdate)
+	g.POST("/inspectorupdate-asset", controller.InspectorUpdate)
+	g.POST("/processorupdate-asset", controller.ProcessorUpdate)
+	g.POST("/exporterupdate-asset", controller.ExporterUpdate)
+	g.POST("/importerupdate-asset", controller.ImporterUpdate)
+
+	//user-endpoint
+	g.POST("/user-create", controller.AddUser)
+	g.GET("/get-user/:id", controller.GetUser)
+	g.GET("/users", controller.GetAllUsers)
+	g.POST("/user-login", controller.LoginUser)
+	g.GET("/admin-login", controller.LoginAdmin)
 
 	err = e.Start(":8080")
 	if err != nil {

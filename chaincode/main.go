@@ -1,17 +1,16 @@
 package main
 
 import (
+	"beanchain/contracts"
 	"fmt"
-
-	"github.com/hyperledger/fabric-samples/chaincode/fabcar/go/contracts"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
 func main() {
-	beanchainChaincode := new(contracts.Beanchain)
+	beanChainContract := new(contracts.BeanChainContract)
 	chaincode, err := contractapi.NewChaincode(
-		beanchainChaincode,
+		beanChainContract,
 	)
 	if err != nil {
 		fmt.Printf("Error creating  chaincode: %s", err.Error())

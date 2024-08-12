@@ -1,4 +1,4 @@
-module github.com/hyperledger/fabric-samples/chaincode/fabcar/go
+module beanchain
 
 go 1.17
 
