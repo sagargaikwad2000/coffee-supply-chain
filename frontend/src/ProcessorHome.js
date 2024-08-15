@@ -1,123 +1,90 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Button, notification } from 'antd';
+import React, { useEffect, useState } from 'react';
+import InspectorBatchForm from './ProcessorBatchForm';
+import './processorHome.css';
 import axios from 'axios';
-import moment from 'moment';
 
-function ProcessorHome() {
-    const [coffeebeans, setCoffeebeans] = useState([]);
+
+const ProcessorHome = () => {
+    const [batches, setBatches] = useState([]);
 
     useEffect(() => {
-        // Fetch approved coffee beans from the API
-        axios.get("http://localhost:8080/api/assets")
-            .then(response => {
-                const data = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
+        axios.get("http://localhost:8080/api/batches").then(function (response) {
+            setBatches(response.data)
+            console.log(response.data)
+        }).catch(function (error) {
+            console.log(error);
+        });
+    }, [])
 
-                if (Array.isArray(data)) {
-                    // Include 'Key' in the transformed data
-                    const transformedData = data.map(item => ({
-                        key: item.Key,  // Include Key here
-                        ...item.Record
-                    }));
-                    setCoffeebeans(transformedData);
-                } else {
-                    console.error('Unexpected data format:', data);
-                }
 
-                console.log(response.data);
-            })
-            .catch(error => {
-                console.log(error);
-                notification.error({
-                    message: 'Error',
-                    description: 'Failed to fetch approved coffee beans.',
-                });
-            });
-    }, []);
+    const [editingBatch, setEditingBatch] = useState(null);
 
-    const handleProcess = (coffeebeanId) => {
-        const processedDate = moment().format('YYYY-MM-DD'); // Get the current date
-
-        axios.put(`http://localhost:3000/coffeebean/process/${coffeebeanId}`, {
-            processedDate: processedDate
-        })
-            .then(response => {
-                notification.success({
-                    message: 'Success',
-                    description: `Coffee bean ${coffeebeanId} processed successfully.`,
-                });
-
-                // Optionally, you can refresh the table data after processing
-                setCoffeebeans(prevBeans => prevBeans.filter(bean => bean.key !== coffeebeanId));
-            })
-            .catch(error => {
-                console.error('Error processing coffee bean:', error);
-                notification.error({
-                    message: 'Error',
-                    description: `Failed to process coffee bean ${coffeebeanId}.`,
-                });
-            });
+    const handleUpdate = (updatedBatch) => {
+        setBatches(batches.map(batch => batch.batchId === updatedBatch.batchId ? updatedBatch : batch));
+        setEditingBatch(null);
     };
 
-    const columns = [
-        {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
-        },
-        {
-            title: 'Type',
-            dataIndex: 'type',
-            key: 'type',
-        },
-        {
-            title: 'Cost per Kg',
-            dataIndex: 'costPerKg',
-            key: 'costPerKg',
-        },
-        {
-            title: 'Date Produced',
-            dataIndex: 'dateProduced',
-            key: 'dateProduced',
-        },
-        {
-            title: 'Location',
-            dataIndex: 'location',
-            key: 'location',
-        },
-        {
-            title: 'Produced By',
-            dataIndex: 'producedBy',
-            key: 'producedBy',
-        },
-        {
-            title: 'Quantity Available',
-            dataIndex: 'qtyAvailable',
-            key: 'qtyAvailable',
-        },
-        {
-            title: 'Status',
-            dataIndex: 'status',
-            key: 'status',
-        },
-        {
-            title: 'Action',
-            key: 'action',
-            render: (_, record) => (
-                <Button
-                    type="primary"
-                    onClick={() => handleProcess(record.key)}  // Use record.key instead of record.Key
-                >
-                    Process
-                </Button>
-            ),
-        },
-    ];
+    const handleEditClick = (batch) => {
+        if (batch.status === "Created") {
+            setEditingBatch(batch);
+        } else {
+            alert("This batch cannot be edited because its status is not 'Created'.");
+        }
+    };
 
     return (
-        <div style={{ padding: '20px' }}>
-            <Table columns={columns} dataSource={coffeebeans} />
-        </div>
+        <div className="container">
+            <h2>Batch List</h2>
+            {batches.length > 0 ?
+                <div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Batch ID</th>
+                                <th>Coffee Type</th>
+                                <th>Location</th>
+                                <th>Created On</th>
+                                <th>Status</th>
+                                <th>Quantity</th>
+                                <th>Cost Per Kg</th>
+
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {batches.map((batch) => (
+                                <tr key={batch.batchId}>
+                                    <td>{batch.batchId}</td>
+                                    <td>{batch.coffeeType}</td>
+                                    <td>{batch.location}</td>
+                                    <td>{batch.createdOn || 'N/A'}</td>
+                                    <td>{batch.status}</td>
+                                    <td>{batch.quantity}</td>
+                                    <td>{batch.costPerKg || 'N/A'}</td>
+                                    <td>
+                                        <button
+                                            onClick={() => handleEditClick(batch)}
+                                            disabled={batch.status !== "Created"}
+                                        >
+                                            Update
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+
+                    {editingBatch && (
+                        <div>
+                            <h3>Update Batch Details</h3>
+                            <InspectorBatchForm formData={editingBatch} onUpdate={handleUpdate} />
+                        </div>
+                    )}
+                </div> : "No Batches Found"
+
+            }
+        </div >
     );
-}
+};
 
 export default ProcessorHome;

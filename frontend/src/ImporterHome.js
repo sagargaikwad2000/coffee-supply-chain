@@ -1,166 +1,89 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, notification, Modal, Form, Input, InputNumber } from 'antd';
+import ImporterBatchForm from './ImporterBatchForm';
+import './importerHome.css';
 import axios from 'axios';
 
+
 const ImporterHome = () => {
-  const [data, setData] = useState([]);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selectedBeanId, setSelectedBeanId] = useState(null);
-  const [form] = Form.useForm();
+  const [batches, setBatches] = useState([]);
 
   useEffect(() => {
-    // Fetch exported coffee data from the API
-    axios.get("http://localhost:8080/api/assets")
-      .then(response => {
-        const data = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
-        if (Array.isArray(data)) {
-          const transformedData = data.map(item => ({
-            key: item.Key,
-            ...item.Record,
-          }));
-          setData(transformedData);
-        } else {
-          console.error('Unexpected data format:', data);
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-        notification.error({
-          message: 'Error',
-          description: 'Failed to fetch exported coffee data.',
-        });
-      });
-  }, []);
+    axios.get("http://localhost:8080/api/batches").then(function (response) {
+      setBatches(response.data)
+      console.log(response.data)
+    }).catch(function (error) {
+      console.log(error);
+    });
+  }, [])
 
-  const handleImport = (values) => {
-    const { buyerName, quantity } = values;
-    axios.post('http://localhost:3000/coffeebean/buy', {
-      coffeebeanId: selectedBeanId,
-      buyerName,
-      quantity,
-    })
-      .then(() => {
-        notification.success({
-          message: 'Success',
-          description: `Coffee bean with ID ${selectedBeanId} has been imported by ${buyerName}.`,
-        });
-        setData(prevData => prevData.map(item =>
-          item.key === selectedBeanId ? { ...item, status: 'Imported' } : item
-        ));
-        setIsModalVisible(false);
-        form.resetFields();
-      })
-      .catch(error => {
-        console.error('Error importing coffee bean:', error);
-        notification.error({
-          message: 'Error',
-          description: `Failed to import coffee bean with ID ${selectedBeanId}.`,
-        });
-      });
+
+  const [editingBatch, setEditingBatch] = useState(null);
+
+  const handleUpdate = (updatedBatch) => {
+    setBatches(batches.map(batch => batch.batchId === updatedBatch.batchId ? updatedBatch : batch));
+    setEditingBatch(null);
   };
 
-  const showImportModal = (key) => {
-    setSelectedBeanId(key);
-    setIsModalVisible(true);
+  const handleEditClick = (batch) => {
+    if (batch.status === "Created") {
+      setEditingBatch(batch);
+    } else {
+      alert("This batch cannot be edited because its status is not 'Created'.");
+    }
   };
-
-  const columns = [
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-    },
-    {
-      title: 'Type',
-      dataIndex: 'type',
-      key: 'type',
-    },
-    {
-      title: 'Cost Per Kg',
-      dataIndex: 'costPerKg',
-      key: 'costPerKg',
-    },
-    {
-      title: 'Date Produced',
-      dataIndex: 'dateProduced',
-      key: 'dateProduced',
-    },
-    {
-      title: 'Processed Date',
-      dataIndex: 'processedDate',
-      key: 'processedDate',
-    },
-    {
-      title: 'Location',
-      dataIndex: 'location',
-      key: 'location',
-    },
-    {
-      title: 'Destination',
-      dataIndex: 'destination',
-      key: 'destination',
-    },
-    {
-      title: 'Qty Available',
-      dataIndex: 'qtyAvailable',
-      key: 'qtyAvailable',
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      render: (_, record) => (
-        <Button
-          type="primary"
-          onClick={() => showImportModal(record.key)}
-        >
-          Import
-        </Button>
-      ),
-    },
-  ];
 
   return (
-    <div>
-      <h1>Exported Coffee</h1>
-      <Table
-        dataSource={data}
-        columns={columns}
-        rowKey="key"
-      />
+    <div className="container">
+      <h2>Batch List</h2>
+      {batches.length > 0 ?
+        <div>
+          <table>
+            <thead>
+              <tr>
+                <th>Batch ID</th>
+                <th>Coffee Type</th>
+                <th>Location</th>
+                <th>Created On</th>
+                <th>Status</th>
+                <th>Quantity</th>
+                <th>Cost Per Kg</th>
 
-      <Modal
-        title="Import Coffee"
-        visible={isModalVisible}
-        onCancel={() => setIsModalVisible(false)}
-        onOk={() => form.submit()}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleImport}
-        >
-          <Form.Item
-            label="Buyer Name"
-            name="buyerName"
-            rules={[{ required: true, message: 'Please enter the buyer\'s name' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Quantity"
-            name="quantity"
-            rules={[{ required: true, message: 'Please enter the quantity' }]}
-          >
-            <InputNumber min={1} />
-          </Form.Item>
-        </Form>
-      </Modal>
-    </div>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {batches.map((batch) => (
+                <tr key={batch.batchId}>
+                  <td>{batch.batchId}</td>
+                  <td>{batch.coffeeType}</td>
+                  <td>{batch.location}</td>
+                  <td>{batch.createdOn || 'N/A'}</td>
+                  <td>{batch.status}</td>
+                  <td>{batch.quantity}</td>
+                  <td>{batch.costPerKg || 'N/A'}</td>
+                  <td>
+                    <button
+                      onClick={() => handleEditClick(batch)}
+                      disabled={batch.status !== "Created"}
+                    >
+                      Update
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {editingBatch && (
+            <div>
+              <h3>Update Batch Details</h3>
+              <ImporterBatchForm formData={editingBatch} onUpdate={handleUpdate} />
+            </div>
+          )}
+        </div> : "No Batches Found"
+
+      }
+    </div >
   );
 };
 

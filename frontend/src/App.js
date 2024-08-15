@@ -5,10 +5,10 @@ import './App.css';
 import AdminHomepage from './AdminHomepage';
 import CreateUser from './CreateUser';
 import GetAllUsers from './GetAllUsers';
-import GetAllCoffee from './GetAllCoffee';
+import GetAllCoffee from './GetAllBatches';
 import ProducerHome from './ProducerHome';
-import CreateCoffee from './CreateCoffee';
-import InspectorcHome from './InspectorcHome';
+import CreateCoffee from './CreateBatchForm';
+import InspectorHome from './InspectorHome';
 import ProcessorHome from './ProcessorHome';
 import ExporterHome from './ExporterHome';
 import ImporterHome from './ImporterHome';
@@ -26,7 +26,7 @@ function App() {
           <Route path="/get-all-users" element={<GetAllUsers />} />
           <Route path="/producerhome" element={<ProducerHome />} />
           <Route path="/create-coffee" element={<CreateCoffee />} />
-          <Route path="/inspectorhome" element={<InspectorcHome />} />
+          <Route path="/inspectorhome" element={<InspectorHome />} />
           <Route path="/processorhome" element={<ProcessorHome />} />
           <Route path="/get-all-coffee" element={<GetAllCoffee />} />
           <Route path="/exporterhome" element={<ExporterHome />} />

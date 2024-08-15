@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, Col, Row } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import "./producerHome.css"
 
 const { Meta } = Card;
 
@@ -18,18 +19,18 @@ const ProducerHome = () => {
           <Card
             hoverable
             onClick={() => handleNavigate('/create-coffee')}
-            cover={<img alt="Create Coffee" src="https://via.placeholder.com/300" />}
+            cover={<img alt="Create Batch" src="https://via.placeholder.com/300" />}
           >
-            <Meta title="Create Coffee" description="Navigate to Create Coffee page" />
+            <Meta title="Create Batch" />
           </Card>
         </Col>
         <Col span={8}>
           <Card
             hoverable
             onClick={() => handleNavigate('/get-all-coffee')}
-            cover={<img alt="Get All Coffee" src="https://via.placeholder.com/300" />}
+            cover={<img alt="Get All Batch" src="https://via.placeholder.com/300" />}
           >
-            <Meta title="Get All Coffee" description="Navigate to Get All Coffee page" />
+            <Meta title="Get All Batch" />
           </Card>
         </Col>
       </Row>

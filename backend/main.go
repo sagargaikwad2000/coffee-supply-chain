@@ -66,7 +66,7 @@ func main() {
 	defer gw.Close()
 
 	// Override default values for chaincode and channel name as they may differ in testing contexts.
-	chaincodeName := "test"
+	chaincodeName := "basic"
 	if ccname := os.Getenv("CHAINCODE_NAME"); ccname != "" {
 		chaincodeName = ccname
 	}
@@ -89,21 +89,25 @@ func main() {
 		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete},
 	}))
 
-	g.GET("/assets", controller.Get)
-	g.GET("/asset/:id", controller.GetById)
-	g.POST("/create-asset", controller.Create)
-	g.POST("/producerupdate-asset", controller.ProducerUpdate)
-	g.POST("/inspectorupdate-asset", controller.InspectorUpdate)
-	g.POST("/processorupdate-asset", controller.ProcessorUpdate)
-	g.POST("/exporterupdate-asset", controller.ExporterUpdate)
-	g.POST("/importerupdate-asset", controller.ImporterUpdate)
+	g.GET("/batches", controller.GetBatches)
+	g.GET("/batch/:id", controller.GetBatchById)
+	g.POST("/create-batch", controller.CreateBatch)
+	g.POST("/update-batch", controller.UpdateBatch)
 
-	//user-endpoint
-	g.POST("/user-create", controller.AddUser)
-	g.GET("/get-user/:id", controller.GetUser)
-	g.GET("/users", controller.GetAllUsers)
-	g.POST("/user-login", controller.LoginUser)
-	g.GET("/admin-login", controller.LoginAdmin)
+	// g.POST("/producerupdate-asset", controller.ProducerUpdate)
+	// g.POST("/inspectorupdate-asset", controller.InspectorUpdate)
+	// g.POST("/processorupdate-asset", controller.ProcessorUpdate)
+	// g.POST("/exporterupdate-asset", controller.ExporterUpdate)
+	// g.POST("/importerupdate-asset", controller.ImporterUpdate)
+
+	// //user-endpoint
+	g.POST("/create-user", controller.CreateUser)
+	g.GET("/get-user/:id", controller.GetUserById)
+	g.POST("/user-login", controller.UserLogin)
+
+	// g.GET("/users", controller.GetAllUsers)
+	// g.POST("/user-login", controller.LoginUser)
+	// g.GET("/admin-login", controller.LoginAdmin)
 
 	err = e.Start(":8080")
 	if err != nil {
