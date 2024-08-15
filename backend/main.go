@@ -94,15 +94,9 @@ func main() {
 	g.POST("/create-batch", controller.CreateBatch)
 	g.POST("/update-batch", controller.UpdateBatch)
 
-	// g.POST("/producerupdate-asset", controller.ProducerUpdate)
-	// g.POST("/inspectorupdate-asset", controller.InspectorUpdate)
-	// g.POST("/processorupdate-asset", controller.ProcessorUpdate)
-	// g.POST("/exporterupdate-asset", controller.ExporterUpdate)
-	// g.POST("/importerupdate-asset", controller.ImporterUpdate)
-
-	// //user-endpoint
 	g.POST("/create-user", controller.CreateUser)
 	g.GET("/get-user/:id", controller.GetUserById)
+	g.GET("/users", controller.GetUsers)
 	g.POST("/user-login", controller.UserLogin)
 
 	// g.GET("/users", controller.GetAllUsers)

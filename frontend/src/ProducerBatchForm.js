@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import axios from 'axios'
 
-const ProducerBatchForm = ({ formData, onUpdate }) => {
+const ProducerBatchForm = ({ formData, oo }) => {
     const [localFormData, setLocalFormData] = useState(formData);
 
     const handleChange = (e) => {
@@ -13,7 +14,17 @@ const ProducerBatchForm = ({ formData, onUpdate }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onUpdate(localFormData);
+        axios.post("http://localhost:8080/api/update-batch", localFormData, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(function (response) {
+            alert("Batch updated successfully")
+            console.log(response);
+        }).catch(function (error) {
+            alert("Batch updation failed", error);
+            console.log(error);
+        });
     };
 
     return (

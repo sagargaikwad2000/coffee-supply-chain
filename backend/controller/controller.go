@@ -254,3 +254,28 @@ func (c *Controller) UserLogin(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, "Password does not match")
 	}
 }
+
+func (c *Controller) GetUsers(ctx echo.Context) error {
+	request := models.Request{
+		ChaincodeName: chaincodeName,
+		ContractName:  contractName,
+		MethodName:    "getAllUsers",
+	}
+
+	evaluateResult, err := c.contract.EvaluateTransaction(request.MethodName)
+	fmt.Println("evaluateResult1", string(evaluateResult))
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, "Failed to get users")
+	}
+
+	// var assets []models.Asset
+	var users []models.User
+
+	err = json.Unmarshal(evaluateResult, &users)
+	if err != nil {
+		fmt.Println("err", err)
+		return ctx.JSON(http.StatusInternalServerError, "Failed to get users")
+	}
+
+	return ctx.JSON(http.StatusOK, users)
+}

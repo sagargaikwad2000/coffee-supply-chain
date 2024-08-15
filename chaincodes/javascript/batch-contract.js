@@ -130,6 +130,47 @@ class BatchContract extends Contract {
 
         return user;
     }
+
+
+    async getAllUsers(ctx) {
+
+        const iterator = await ctx.stub.getStateByRange('', '');
+        const allResults = [];
+
+        while (true) {
+            const res = await iterator.next();
+            console.log("res.value:", res.value)
+            if (res.value) {
+                const strValue = Buffer.from(res.value.value).toString('utf8');
+                console.log("strValue", strValue)
+                let record;
+                try {
+                    record = JSON.parse(strValue);
+                    console.log("record1", record)
+                } catch (err) {
+                    console.error(err);
+                    record = strValue;
+                }
+
+                console.log("record", record)
+
+                // console.log("record.value", typeof (record.value))
+                var recordJSON = JSON.parse(record)
+                console.log("recordJSON", recordJSON)
+
+                if (recordJSON.docType == "User") {
+                    allResults.push(recordJSON);
+                }
+            }
+
+            console.log("allResults", allResults)
+
+            if (res.done) {
+                await iterator.close();
+                return JSON.stringify(allResults);
+            }
+        }
+    }
 }
 
 module.exports = BatchContract;
