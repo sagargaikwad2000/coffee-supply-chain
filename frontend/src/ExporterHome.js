@@ -25,10 +25,10 @@ const InspectorHome = () => {
   };
 
   const handleEditClick = (batch) => {
-    if (batch.status === "Created") {
+    if (batch.status === "Processed") {
       setEditingBatch(batch);
     } else {
-      alert("This batch cannot be edited because its status is not 'Created'.");
+      alert("This batch cannot be edited because its status is not 'Processed'.");
     }
   };
 
@@ -64,7 +64,7 @@ const InspectorHome = () => {
                   <td>
                     <button
                       onClick={() => handleEditClick(batch)}
-                      disabled={batch.status !== "Created"}
+                      disabled={batch.status !== "Processed"}
                     >
                       Update
                     </button>

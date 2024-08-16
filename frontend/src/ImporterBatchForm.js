@@ -62,19 +62,10 @@ const ImporterBatchForm = ({ formData, onUpdate }) => {
                 />
             </div>
             <div>
-                <label>Status:</label>
-                <input
-                    type="text"
-                    name="status"
-                    value={localFormData.status}
-                    onChange={handleChange}
-                />
-            </div>
-            <div>
                 <label>Destination:</label>
                 <input
                     type="text"
-                    name="status"
+                    name="location"
                     value={localFormData.location}
                     onChange={handleChange}
                 />

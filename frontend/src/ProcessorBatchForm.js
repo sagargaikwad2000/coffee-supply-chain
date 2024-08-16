@@ -70,12 +70,14 @@ const ProcessorBatchForm = ({ formData, onUpdate }) => {
             </div>
             <div>
                 <label>Status:</label>
-                <input
-                    type="text"
+                <select
                     name="status"
                     value={localFormData.status}
                     onChange={handleChange}
-                />
+                >
+                    <option value="">Change status</option>
+                    <option value="Processed">Processed</option>
+                </select>
             </div>
             <div>
                 <label>Quantity:</label>

@@ -70,12 +70,14 @@ const InspectorBatchForm = ({ formData, onUpdate }) => {
             </div>
             <div>
                 <label>Status:</label>
-                <input
-                    type="text"
+                <select
                     name="status"
                     value={localFormData.status}
                     onChange={handleChange}
-                />
+                >
+                    <option value="">Change status</option>
+                    <option value="Approved">Approved</option>
+                </select>
             </div>
             <div>
                 <label>Quantity:</label>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios'
+import axios from 'axios';
 
 const ProducerBatchForm = ({ formData, oo }) => {
     const [localFormData, setLocalFormData] = useState(formData);
@@ -19,10 +19,10 @@ const ProducerBatchForm = ({ formData, oo }) => {
                 'Content-Type': 'application/json'
             }
         }).then(function (response) {
-            alert("Batch updated successfully")
+            alert("Batch updated successfully");
             console.log(response);
         }).catch(function (error) {
-            alert("Batch updation failed", error);
+            alert("Batch update failed", error);
             console.log(error);
         });
     };
@@ -57,21 +57,23 @@ const ProducerBatchForm = ({ formData, oo }) => {
                     onChange={handleChange}
                 />
             </div>
-            <div>
+            {/* <div>
                 <label>Status:</label>
-                <input
-                    type="text"
+                <select
                     name="status"
                     value={localFormData.status}
                     onChange={handleChange}
-                />
-            </div>
+                >
+                    <option value="">Change status</option>
+                    <option value="Created">Created</option>
+                </select>
+            </div> */}
             <div>
                 <label>Destination:</label>
                 <input
                     type="text"
-                    name="status"
-                    value={localFormData.location}
+                    name="destination"
+                    value={localFormData.destination}
                     onChange={handleChange}
                 />
             </div>

@@ -25,7 +25,7 @@ const ProcessorHome = () => {
     };
 
     const handleEditClick = (batch) => {
-        if (batch.status === "Created") {
+        if (batch.status === "Approved") {
             setEditingBatch(batch);
         } else {
             alert("This batch cannot be edited because its status is not 'Created'.");
@@ -64,7 +64,7 @@ const ProcessorHome = () => {
                                     <td>
                                         <button
                                             onClick={() => handleEditClick(batch)}
-                                            disabled={batch.status !== "Created"}
+                                            disabled={batch.status !== "Approved"}
                                         >
                                             Update
                                         </button>
